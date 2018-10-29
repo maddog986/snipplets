@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Drew Gauderman
+ * Copyright (C) 2018 Drew Gauderman <drew@hyak.co>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,7 +17,52 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//MAGIC SAUCE BY DREW GAUDERMAN
+ //javascript folder(s) to auto cleanup and minify when saves are detected
+const JS_SOURCES = [
+	'./assets/js/public.js',
+	'./assets/js/private.js',
+];
+//js files to move over from node_modules
+const JS_MOVE = [
+	'./node_modules/jquery/dist/jquery.slim.min.js',
+	'./node_modules/jquery-confirm/dist/jquery-confirm.min.js',
+	'./node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js',
+	'./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js',
+];
+//css sources
+const CSS_SOURCES = [
+	'./assets/scss/public.scss',
+	'./assets/scss/private.scss'
+];
+//css files to move over from node_modules
+const CSS_MOVE = [
+	'./node_modules/open-iconic/font/css/open-iconic-bootstrap.css',
+	'./node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css',
+	'./node_modules/jquery-confirm/dist/jquery-confirm.min.css',
+]
+//font files to move over from node_modules
+const FONTS_MOVE = [
+	'./node_modules/open-iconic/font/fonts/*'
+]
+//folder to output cleanedup and minified javascript files
+const JS_OUTPUT = './assets/js';
+//folder to output sass/theme.scss into
+const CSS_OUTPUT = './assets/css';
+//folder to fonts directory
+const FONTS_OUTPUT = './assets/fonts';
+//extension to give minified css and js files
+const MINIFI_PREFIX = '.min';
+//sass include paths
+const SASS_INCLUDE = [
+	'./assets/scss',
+	'./node_modules/bootstrap/scss',
+]
+//files to watch for changes to force browser refresh
+const WATCH_FILES = ['./**/*.min.css', './**/*.php', './**/*.html', './**/*.png', './**/*.min.js'];
+//files to ignore during watch
+const IGNORE_WATCH_FILES = ['*.txt', '*.map', '*.json', '*.md', '*gulpfile.js', 'php_test'];
+
+//declaring all the modules we are about to use
 const gulp = require('gulp'),
 	sass = require('gulp-sass'),
 	uglify = require('gulp-uglify'),
@@ -39,49 +84,15 @@ const gulp = require('gulp'),
 
 //look into this later: https://andy-carter.com/blog/automatically-load-gulp-plugins-with-gulp-load-plugins
 
-//javascript folder(s) to auto cleanup and minify when saves are detected
-var JS_SOURCES = [
-	'./assets/js/public.js',
-	'./assets/js/private.js',
-];
-//css sources
-var CSS_SOURCES = [
-	'./assets/scss/public.scss',
-	'./assets/scss/private.scss'
-];
-
-//folder to output cleanedup and minified javascript files
-var JS_OUTPUT = './assets/js';
-
-//folder to output sass/theme.scss into
-var CSS_OUTPUT = './assets/css';
-
-//folder to fonts directory
-var FONTS_OUTPUT = './assets/fonts';
-
-//extension to give minified css and js files
-var MINIFI_PREFIX = '.min';
-
-//show error message
-var onError = function (err) {
-	//console.error(err);
-};
-
 //Compile Sass files into a nice cleaned up css full file, and minified file.
 gulp.task('compile:sass', gulp.series(function () {
 	//convert sass into css
 	const css = gulp.src(CSS_SOURCES)
-		.pipe(plumber({
-			errorHandler: onError
-		}))
+		.pipe(plumber())
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 			outputStyle: 'expanded',
-			includePaths: [
-				'./assets/scss',
-				'./node_modules/bootstrap/scss',
-				'./node_modules/feathericon/build/scss'
-			]
+			includePaths: SASS_INCLUDE
 		}).on('error', sass.logError)) //start sass conversion
 		.pipe(postcss([autoprefixer, movemedia, colors, sort]));
 
@@ -120,39 +131,28 @@ gulp.task('js:minify', function () {
 
 // Move files to make sure we are using lated version
 gulp.task('movefiles', function () {
-	gulp.src([
-			'./node_modules/open-iconic/font/css/open-iconic-bootstrap.css',
-			'./node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css',
-			'./node_modules/jquery-confirm/dist/jquery-confirm.min.css'
-		])
+	gulp.src(CSS_MOVE)
 		.pipe(gulp.dest(CSS_OUTPUT));
 
-	gulp.src([
-			'./node_modules/jquery/dist/jquery.slim.min.js',
-			'./node_modules/jquery-confirm/dist/jquery-confirm.min.js',
-			'./node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js',
-			'./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js'
-		])
+	gulp.src(JS_MOVE)
 		.pipe(gulp.dest(JS_OUTPUT));
 
-	return gulp.src([
-			'./node_modules/open-iconic/font/fonts/*'
-		])
+	return gulp.src(FONTS_MOVE)
 		.pipe(gulp.dest(FONTS_OUTPUT));
 });
 
 //Start up our magicsause
-gulp.task('magicsauce', function () {
+gulp.task('start:watch', function () {
 	browsersync.init({
 		//files: ['./**/*.php'],
 		proxy: 'http://wordpress.test/', //local webserver url
 		notify: false,
-		files: ['./**/*.min.css', './**/*.php', './**/*.html', './**/*.png', './**/*.min.js'],
+		files: WATCH_FILES,
 		open: false,
 		minify: false,
 		watchOptions: {
 			ignoreInitial: true,
-			ignored: ['*.txt', '*.map', '*.json', '*.md', '*gulpfile.js', 'php_test']
+			ignored: IGNORE_WATCH_FILES
 		},
 	});
 
@@ -164,7 +164,7 @@ gulp.task('magicsauce', function () {
 });
 
 //runs a php dev server for testing
-gulp.task('phpdev', function () {
+gulp.task('start:phpdev', function () {
 	//start php server in php_test directory
 	php.server({
 		base: 'php_test',
@@ -173,11 +173,11 @@ gulp.task('phpdev', function () {
 	});
 });
 
-/**
- * Default task executed by running `gulp`
- */
-gulp.task('default', gulp.series('magicsauce'));
+//for testing quickly php stuff
+gulp.task('start:phpdev', gulp.series('start:phpdev'));
 
-gulp.task('phpdev', gulp.series('phpdev'));
-
+//moves other framework stuff over
 gulp.task('movefiles', gulp.series('movefiles'));
+
+//main task to start when developing
+gulp.task('default', gulp.series('start:watch'));
