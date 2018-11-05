@@ -31,10 +31,10 @@
 #   sudo nano /etc/cron.monthly/unifi_controller_le.sh
 #
 # give the script edit permissions
-#   chmod a+x /etc/cron.monthly/unifi_controller_le
+#   chmod a+x /etc/cron.monthly/unifi_controller_le.sh
 #
 # manually run the script:
-#   sudo /etc/cron.monthly/unifi_controller_le
+#   sudo /etc/cron.monthly/unifi_controller_le.sh
 #--------------------------------------------------
 
 # Stop the UniFi controller
