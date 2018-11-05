@@ -17,18 +17,22 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
- //javascript folder(s) to auto cleanup and minify when saves are detected
+//javascript folder(s) to auto cleanup and minify when saves are detected
 const JS_SOURCES = [
 	'./assets/js/public.js',
 	'./assets/js/private.js',
+	'./assets/js/private-sponsors.js'
 ];
 //js files to move over from node_modules
 const JS_MOVE = [
 	'./node_modules/jquery/dist/jquery.slim.min.js',
 	'./node_modules/jquery-confirm/dist/jquery-confirm.min.js',
 	'./node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js',
-	'./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js',
+	'./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js'
 ];
+//sass folder to watch for changes
+const SASS_FOLDER = './assets/scss/*.scss';
+
 //css sources
 const CSS_SOURCES = [
 	'./assets/scss/public.scss',
@@ -36,9 +40,9 @@ const CSS_SOURCES = [
 ];
 //css files to move over from node_modules
 const CSS_MOVE = [
-	'./node_modules/open-iconic/font/css/open-iconic-bootstrap.css',
 	'./node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css',
 	'./node_modules/jquery-confirm/dist/jquery-confirm.min.css',
+	'./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.min.css'
 ]
 //font files to move over from node_modules
 const FONTS_MOVE = [
@@ -56,9 +60,10 @@ const MINIFI_PREFIX = '.min';
 const SASS_INCLUDE = [
 	'./assets/scss',
 	'./node_modules/bootstrap/scss',
+	'./node_modules/feathericon/build/scss'
 ]
 //files to watch for changes to force browser refresh
-const WATCH_FILES = ['./**/*.min.css', './**/*.php', './**/*.html', './**/*.png', './**/*.min.js'];
+const WATCH_FILES = ['./**/*.min.css', './**/*.min.js'];
 //files to ignore during watch
 const IGNORE_WATCH_FILES = ['*.txt', '*.map', '*.json', '*.md', '*gulpfile.js', 'php_test'];
 
@@ -79,8 +84,10 @@ const gulp = require('gulp'),
 	colors = require('postcss-color-rgba-fallback'),
 	clone = require('gulp-clone'),
 	merge = require('merge-stream'),
-	php = require('gulp-connect-php') //https://fettblog.eu/php-browsersync-grunt-gulp/
-;
+	php = require('gulp-connect-php'), //https://fettblog.eu/php-browsersync-grunt-gulp/
+	bump = require('gulp-bump'),
+	git = require('gulp-git'),
+	fs = require('fs');
 
 //look into this later: https://andy-carter.com/blog/automatically-load-gulp-plugins-with-gulp-load-plugins
 
@@ -115,7 +122,7 @@ gulp.task('compile:sass', gulp.series(function () {
 gulp.task('js:minify', function () {
 	return gulp.src(JS_SOURCES)
 		.pipe(plumber({
-			errorHandler: onError
+			//errorHandler: onError
 		}))
 		.pipe(sourcemaps.init()) //build sourcemaps
 		.pipe(jshint())
@@ -156,7 +163,7 @@ gulp.task('start:watch', function () {
 		},
 	});
 
-	gulp.watch('./assets/scss/*.scss', gulp.parallel('compile:sass')); //watch scss folder for changes
+	gulp.watch(SASS_FOLDER, gulp.parallel('compile:sass')); //watch scss folder for changes
 	gulp.watch(JS_SOURCES, gulp.parallel('js:minify')); //watch javascript folder for changes
 
 	// stop gulp with changes detected on gulpfile.js
@@ -167,10 +174,42 @@ gulp.task('start:watch', function () {
 gulp.task('start:phpdev', function () {
 	//start php server in php_test directory
 	php.server({
-		base: 'php_test',
+		base: 'php_test', //folder
 		port: 8010,
 		keepalive: true
 	});
+});
+
+var getPackageJson = function () {
+	return JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+};
+
+gulp.task('save', function () {
+	// get package
+	var version = getPackageJson().version;
+	var message = 'Update version to ' + version;
+
+	return gulp.series(
+		//update version
+		gulp.src('./package.json')
+		.pipe(bump({
+			type: 'patch'
+		}))
+		.pipe(gulp.dest('./')),
+
+		//commit the files
+		gulp.src(['./'])
+		.pipe(git.add())
+		.pipe(git.commit(message))
+		.on('data', function (err) {
+			git.tag(version, message);
+		}),
+
+		//push to origin
+		git.push('origin', 'master', function (err) {
+			if (err) throw err;
+		})
+	);
 });
 
 //for testing quickly php stuff
