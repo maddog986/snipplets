@@ -10,12 +10,6 @@ chmod a+x certbot-auto
 ./certbot-auto certonly
 ```
 
-run certbot for the first time and follow through with the promps:
-
-```
-sudo certbot --nginx
-```
-
 add to monthly cron run via a script file
 
 ```
