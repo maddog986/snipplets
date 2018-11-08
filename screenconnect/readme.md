@@ -1,4 +1,4 @@
-Unifi Controller LetsEncrypt support.
+Screen Connect LetsEncrypt support.
 
 To install:
 install certbot (one time). Follow through with the prompts.
@@ -13,17 +13,17 @@ chmod a+x certbot-auto
 add to monthly cron run via a script file
 
 ```
-sudo nano /etc/cron.monthly/unifi_controller_le.sh
+sudo nano /etc/cron.monthly/screenconnect_le.sh
 ```
 
 give the script edit permissions
 
 ```
-chmod a+x /etc/cron.monthly/unifi_controller_le.sh
+chmod a+x /etc/cron.monthly/screenconnect_le.sh
 ```
 
 manually run the script:
 
 ```
-sudo /etc/cron.monthly/unifi_controller_le.sh
+sudo /etc/cron.monthly/screenconnect_le.sh
 ```

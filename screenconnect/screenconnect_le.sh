@@ -18,7 +18,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #--------------------------------------------------
-# Unifi Controller Lets Encrypt. v1.0.0
+# ScreenConnect Lets Encrypt. v1.0.0
 #
 # To install:
 # install certbot (one time)
@@ -28,33 +28,30 @@
 #   ./certbot-auto certonly
 #
 # add to monthly cron run via a script file
-#   sudo nano /etc/cron.monthly/unifi_controller_le.sh
+#   sudo nano /etc/cron.monthly/screenconnect_le.sh
 #
 # give the script edit permissions
-#   chmod a+x /etc/cron.monthly/unifi_controller_le.sh
+#   chmod a+x /etc/cron.monthly/screenconnect_le.sh
 #
 # manually run the script:
-#   sudo /etc/cron.monthly/unifi_controller_le.sh
+#   sudo /etc/cron.monthly/screenconnect_le.sh
 #--------------------------------------------------
 
 # Set the Domain name, valid DNS entry must exist
 DOMAIN="sub.yourdomain.com" #must be any valid public accessible url
 
 # NO NEED TO DO NOT EDIT BELOW --------------
-# Stop the UniFi controller
-service unifi stop
-
-#backup previous keystore
-cp /var/lib/unifi/keystore /var/lib/unifi/keystore.backup.$(date +%F_%R)
+# Stop the service
+service screenconnect stop
 
 #Renew the certificate
 sudo certbot-auto renew --quiet --no-self-upgrade
 
-# Convert cert to PKCS12 format
-sudo openssl pkcs12 -export -inkey /etc/letsencrypt/live/${DOMAIN}/privkey.pem -in /etc/letsencrypt/live/${DOMAIN}/fullchain.pem -out /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -name unifi -password pass:unifi
+#copy the pem file over to screen connect folder
+cp /etc/letsencrypt/live/${DOMAIN}/cert.pem /opt/screenconnect/App_Runtime/etc/.mono/httplistener/443.cer
 
-# Import certificate
-sudo keytool -importkeystore -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destkeystore /var/lib/unifi/keystore -srckeystore /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -srcstoretype PKCS12 -srcstorepass unifi -alias unifi -noprompt
+#convert the cert
+openssl rsa -in /etc/letsencrypt/live/${DOMAIN}/privkey.pem -inform PEM -outform PVK -pvk-none -out /opt/screenconnect/App_Runtime/etc/.mono/httplistener/443.pvk
 
-# Start the UniFi controller
-service unifi start
+# Start the service
+service screenconnect start
