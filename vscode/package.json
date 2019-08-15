@@ -1,0 +1,66 @@
+{
+  "name": "gulp_setup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "author": {
+    "name": "Drew Gauderman",
+    "email": "drew@dpg.host"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "4.0.2",
+    "gulp-sass": "4.0.2",
+    "gulp-uglify": "3.0.2",
+    "gulp-rename": "1.4.0",
+    "autoprefixer": "9.6.1",
+    "gulp-sourcemaps": "2.6.5",
+    "gulp-plumber": "1.2.1",
+    "gulp-jshint": "2.1.0",
+    "browser-sync": "2.26.7",
+    "gulp-postcss": "8.0.0",
+    "gulp-cssnano": "2.1.3",
+    "css-mqpacker": "7.0.0",
+    "postcss-sorting": "5.0.1",
+    "postcss-color-rgba-fallback": "3.0.0",
+    "gulp-clone": "2.0.1",
+    "merge-stream": "2.0.0",
+    "gulp-bump": "3.1.3",
+    "gulp-git": "2.9.0"
+  },
+  "gulp": {
+    "js_sources": [
+      "./src/assets/js/public.js",
+      "./src/assets/js/private.js",
+      "./src/assets/js/private-sponsors.js"
+    ],
+    "js_move": [
+      "./node_modules/jquery/dist/jquery.min.js",
+      "./node_modules/jquery-confirm/dist/jquery-confirm.min.js",
+      "./node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js",
+      "./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"
+    ],
+    "js_output": "./theme/assets/js",
+    "sass_main": [
+      "./src/assets/scss/public.scss",
+      "./src/assets/scss/private.scss"
+    ],
+    "sass_watch": "./src/assets/scss/*.scss",
+    "sass_include": [
+      "./src/assets/scss",
+      "./node_modules/bootstrap/scss",
+      "./node_modules/feathericon/build/scss"
+    ],
+    "css_move": [
+      "./node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css",
+      "./node_modules/jquery-confirm/dist/jquery-confirm.min.css",
+      "./node_modules/jquery-datetimepicker/build/jquery.datetimepicker.min.css"
+    ],
+    "css_output": "./theme/assets/css",
+    "fonts_move": [
+      "./node_modules/open-iconic/font/fonts/*"
+    ],
+    "fonts_output": "./theme/assets/fonts",
+    "minifi_prefix": ".min"
+  }
+}
