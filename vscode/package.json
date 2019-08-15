@@ -61,6 +61,7 @@
       "./node_modules/open-iconic/font/fonts/*"
     ],
     "fonts_output": "./theme/assets/fonts",
-    "minifi_prefix": ".min"
+    "minifi_prefix": ".min",
+    "webserver_url": "http://website.test"
   }
 }

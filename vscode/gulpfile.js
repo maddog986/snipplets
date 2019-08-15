@@ -113,7 +113,7 @@ const service = {
 	//starts up browersync
 	webServe: () => {
 		browsersync.init({
-			proxy: "http://thefinancialbrand.test", //local webserver url
+			proxy: GULPSETTINGS.webserver_url, //local webserver url
 			notify: false,
 			open: false,
 			minify: false
