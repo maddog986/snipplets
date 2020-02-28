@@ -34,7 +34,7 @@
 #       (paste all the code (this entire file) and save)
 #
 # 3) setup execute permissions:
-#   chmod a+x /etc/unifi_video_le.sh
+#   sudo chmod a+x /etc/unifi_video_le.sh
 #
 # 4) manually run the script:
 #   sudo /etc/unifi_video_le.sh
@@ -44,16 +44,16 @@
 #     0 0 1 * * /etc/unifi_video_le.sh >/dev/null 2>&1
 #--------------------------------------------------
 
-# Set the Domain name, valid DNS entry must exist
-DOMAIN="sub.yourdomain.com" #must be any valid public accessible url
+# Set the Domain name, that points to your NVR, a valid DNS entry must exist
+DOMAIN="sub.yourdomain.com"
 
 # NO NEED TO DO NOT EDIT BELOW --------------
 
-# Enable custom certificates in the system.properties for Unifi Video
-grep -qxF 'ufv.custom.certs.enable=true' /var/lib/unifi-video/system.properties || echo "ufv.custom.certs.enable=true" >>/var/lib/unifi-video/system.properties
-
 # Stop the UniFi controller
 service unifi-video stop
+
+# Enable custom certificates in the system.properties for Unifi Video
+grep -qxF 'ufv.custom.certs.enable=true' /var/lib/unifi-video/system.properties || echo "ufv.custom.certs.enable=true" >>/var/lib/unifi-video/system.properties
 
 #backup previous keystore
 cp /var/lib/unifi-video/keystore /var/lib/unifi-video/keystore.backup.$(date +%F_%R)
@@ -65,7 +65,7 @@ sudo certbot-auto renew --quiet --no-self-upgrade
 sudo openssl pkcs12 -export -inkey /etc/letsencrypt/live/${DOMAIN}/privkey.pem -in /etc/letsencrypt/live/${DOMAIN}/fullchain.pem -out /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -name airvision -password pass:ubiquiti
 
 # Import certificate
-sudo keytool -importkeystore -deststorepass ubiquiti -destkeypass ubiquiti -destkeystore /var/lib/unifi-video/keystore -srckeystore /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -srcstoretype PKCS12 -srcstorepass ubiquiti -alias airvision -noprompt
+sudo keytool -importkeystore -deststorepass ubiquiti -destkeypass ubiquiti -destkeystore /var/lib/unifi-video/keystore -srckeystore /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -srcstoretype pkcs12 -srcstorepass ubiquiti -alias airvision -noprompt
 
 # Start the UniFi controller
 service unifi-video start
