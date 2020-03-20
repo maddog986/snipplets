@@ -49,7 +49,7 @@ DOMAIN="sub.yourdomain.com"
 
 # NO NEED TO DO NOT EDIT BELOW --------------
 
-# Stop the UniFi controller
+# Stop the UniFi Video service
 service unifi-video stop
 
 # Enable custom certificates in the system.properties for Unifi Video
@@ -67,5 +67,5 @@ sudo openssl pkcs12 -export -inkey /etc/letsencrypt/live/${DOMAIN}/privkey.pem -
 # Import certificate
 sudo keytool -importkeystore -deststorepass ubiquiti -destkeypass ubiquiti -destkeystore /var/lib/unifi-video/keystore -srckeystore /etc/letsencrypt/live/${DOMAIN}/fullchain.p12 -srcstoretype pkcs12 -srcstorepass ubiquiti -alias airvision -noprompt
 
-# Start the UniFi controller
+# Start the UniFi Video service
 service unifi-video start
